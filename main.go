@@ -6,22 +6,27 @@ import (
 )
 
 func main() {
+	type Address struct {
+		Country string
+		City    string
+	}
 	type User struct {
-		ID     int
-		Name   string
-		Gender int
-		Tel    string
+		ID      int
+		Name    string
+		Gender  int
+		Tel     string
+		Address Address
 	}
 
 	type UserDto struct {
-		ID     int
-		Name   string
-		Avatar string
+		ID      int
+		Name    string
+		Avatar  string
+		Address Address
 	}
 
-	user := User{1, "小明", 1, "18800188001"}
-	//userDto := &UserDto{}
-	var userDto *UserDto
+	user := User{1, "小明", 1, "18800188001", Address{"中国", "深圳"}}
+	userDto := &UserDto{}
 	err := mapping.MapTo(user, userDto)
 	if err != nil {
 		fmt.Println(err.Error())

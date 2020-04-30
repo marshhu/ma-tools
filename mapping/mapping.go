@@ -49,21 +49,34 @@ func MapTo(src interface{}, dst interface{}) error {
 				dstValue.Field(i).Set(value)
 			}
 		}
-	case reflect.Slice: //切片
-		if dstType.Kind() != reflect.Slice { //源数据为切片，要求目标也为切片
+	case reflect.Slice, reflect.Array: //切片
+		if dstType.Kind() != reflect.Slice || dstType.Kind() != reflect.Array {
 			return errors.New("dst type should be a slice")
 		}
-	case reflect.Array: //数组
-		if dstType.Kind() != reflect.Array { //源数据为切片，要求目标也为数组
-			return errors.New("dst type should be a array")
+		for i := 0; i <= srcValue.Len(); i++ {
+			fmt.Println(srcValue.Index(i))
+			item := reflect.New(dstValue.Type().Elem()).Elem()
+			copyValue(srcValue.Index(i), item)
+			dstValue.Set(reflect.Append(dstValue, item))
 		}
 	case reflect.Map: //map
 		if dstType.Kind() != reflect.Map { //源数据为切片，要求目标也为map
 			return errors.New("dst type should be a map")
 		}
+		for _, key := range srcValue.MapKeys() {
+			fmt.Println(srcValue.MapIndex(key))
+			item := reflect.New(dstValue.Type().Elem()).Elem()
+			copyValue(srcValue.MapIndex(key), item)
+			dstValue.Set(reflect.Append(dstValue, item))
+		}
 	default:
 		panic(fmt.Sprintf("%v cannot mapping", srcType.Kind()))
 
 	}
+	return nil
+}
+
+func copyValue(srcValue reflect.Value, dstValue reflect.Value) error {
+
 	return nil
 }
