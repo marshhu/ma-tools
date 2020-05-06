@@ -49,7 +49,7 @@ func MapTo(src interface{}, dst interface{}) error {
 				return errors.New("dst array length should grater then src")
 			}
 			for i := 0; i < srcValue.Len(); i++ {
-				fmt.Println(srcValue.Index(i))
+				//fmt.Println(srcValue.Index(i))
 				item := reflect.New(dstValue.Type().Elem())
 				setValue(srcValue.Index(i), item)
 				if dstValue.Index(i).CanSet() {
@@ -73,9 +73,11 @@ func MapTo(src interface{}, dst interface{}) error {
 		}
 		for _, key := range srcValue.MapKeys() {
 			//fmt.Println(srcValue.MapIndex(key))
-			item := reflect.New(dstValue.Type())
+			item := reflect.New(dstValue.Type().Elem())
 			setValue(srcValue.MapIndex(key), item)
-			dstValue.SetMapIndex(key, srcValue.MapIndex(key))
+			if dstValue.CanSet() {
+				dstValue.SetMapIndex(key, item.Elem())
+			}
 		}
 	default:
 		panic(fmt.Sprintf("%v cannot mapping", srcType.Kind()))
