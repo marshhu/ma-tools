@@ -4,31 +4,31 @@ import (
 	"testing"
 )
 
+type Address struct {
+	Country string
+	City    string
+}
+
+type AddressB struct {
+	Country string
+}
+
+type User struct {
+	ID      int
+	Name    string
+	Gender  int
+	Tel     string
+	Address Address
+}
+
+type UserDto struct {
+	ID      int
+	Name    string
+	Avatar  string
+	Address AddressB
+}
+
 func TestMapToStruct(t *testing.T) {
-	type Address struct {
-		Country string
-		City    string
-	}
-
-	type AddressB struct {
-		Country string
-	}
-
-	type User struct {
-		ID      int
-		Name    string
-		Gender  int
-		Tel     string
-		Address Address
-	}
-
-	type UserDto struct {
-		ID      int
-		Name    string
-		Avatar  string
-		Address AddressB
-	}
-
 	user := User{1, "小明", 1, "18800188001", Address{"中国", "深圳"}}
 	userDto := &UserDto{}
 	err := MapTo(user, userDto)
@@ -41,30 +41,6 @@ func TestMapToStruct(t *testing.T) {
 }
 
 func TestMapToSlice(t *testing.T) {
-	type Address struct {
-		Country string
-		City    string
-	}
-
-	type AddressB struct {
-		Country string
-	}
-
-	type User struct {
-		ID      int
-		Name    string
-		Gender  int
-		Tel     string
-		Address Address
-	}
-
-	type UserDto struct {
-		ID      int
-		Name    string
-		Avatar  string
-		Address AddressB
-	}
-
 	users := []User{
 		{1, "小明", 1, "18800188001", Address{"中国", "深圳"}},
 		{2, "小红", 0, "18800188002", Address{"中国", "广州"}},
@@ -90,30 +66,6 @@ func TestMapToSlice(t *testing.T) {
 }
 
 func TestMapToArray(t *testing.T) {
-	type Address struct {
-		Country string
-		City    string
-	}
-
-	type AddressB struct {
-		Country string
-	}
-
-	type User struct {
-		ID      int
-		Name    string
-		Gender  int
-		Tel     string
-		Address Address
-	}
-
-	type UserDto struct {
-		ID      int
-		Name    string
-		Avatar  string
-		Address AddressB
-	}
-
 	users := [4]User{
 		{1, "小明", 1, "18800188001", Address{"中国", "深圳"}},
 		{2, "小红", 0, "18800188002", Address{"中国", "广州"}},
@@ -139,30 +91,6 @@ func TestMapToArray(t *testing.T) {
 }
 
 func TestMapToMap(t *testing.T) {
-	type Address struct {
-		Country string
-		City    string
-	}
-
-	type AddressB struct {
-		Country string
-	}
-
-	type User struct {
-		ID      int
-		Name    string
-		Gender  int
-		Tel     string
-		Address Address
-	}
-
-	type UserDto struct {
-		ID      int
-		Name    string
-		Avatar  string
-		Address AddressB
-	}
-
 	users := make(map[string]User)
 	users["小明"] = User{1, "小明", 1, "18800188001", Address{"中国", "深圳"}}
 	users["小红"] = User{2, "小红", 0, "18800188002", Address{"中国", "广州"}}
