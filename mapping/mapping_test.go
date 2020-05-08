@@ -71,7 +71,7 @@ func GetData() []User {
 }
 
 func CheckResult(user *User, userDto *UserDto) bool {
-	if int(userDto.Id) != user.ID {
+	if userDto.Id != user.ID {
 		return false
 	}
 	//if userDto.Name != user.Name {
