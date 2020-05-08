@@ -1,7 +1,6 @@
 package mapping
 
 import (
-	"fmt"
 	"testing"
 	"time"
 )
@@ -104,8 +103,6 @@ func TestMapToStruct(t *testing.T) {
 	if err != nil {
 		t.FailNow()
 	}
-	fmt.Println("userDto.CreateAt:" + userDto.CreatedAt.Format("2006-01-02 15:04:05"))
-	fmt.Println("user.CreateAt:" + user.CreatedAt.Format("2006-01-02 15:04:05"))
 	if !CheckResult(&user, userDto) {
 		t.FailNow()
 	}
