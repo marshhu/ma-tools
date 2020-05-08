@@ -40,12 +40,13 @@ type User struct {
 
 type UserDto struct {
 	Id        int
-	Name      string `mapping:"ignore"`
+	Name      string `ignore:"true"` //映射时，忽略此字段
 	Avatar    string
+	Phone     string `mappingField:"Tel"` //指定映射字段名
 	Address   AddressB
 	Hobbies   []HobbyB
 	CreatedAt time.Time
-	UpdatedAt string `timeFormat:"2006-01-02"`
+	UpdatedAt string `timeFormat:"2006-01-02"` //指定映射时，时间格式
 }
 
 func GetData() []User {
@@ -77,6 +78,9 @@ func CheckResult(user *User, userDto *UserDto) bool {
 	//if userDto.Name != user.Name {
 	//	return false
 	//}
+	if userDto.Phone != user.Tel {
+		return false
+	}
 	if userDto.Address.Country != user.Address.Country {
 		return false
 	}

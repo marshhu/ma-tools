@@ -41,13 +41,11 @@ func setValue(srcValue reflect.Value, dstValue reflect.Value) error {
 		}
 		for i := 0; i < dstValue.NumField(); i++ {
 			fieldInfo := dstType.Field(i)
-			mapping := fieldInfo.Tag.Get("mapping")
-			if mapping == "ignore" {
+			ignore := fieldInfo.Tag.Get("ignore")
+			if ignore == "true" { //映射忽略
 				continue
 			}
-			fieldName := fieldInfo.Name
-			//fmt.Println(fieldName + ":" + dstType.Field(i).Type.String())
-			value := findValueByName(srcValue, fieldName)
+			value := findValueByName(srcValue, fieldInfo) //根据tag和字段名查找值
 			if !value.IsValid() {
 				continue
 			}
@@ -62,7 +60,7 @@ func setValue(srcValue reflect.Value, dstValue reflect.Value) error {
 					if dstValue.Field(i).IsValid() && dstValue.Field(i).CanSet() {
 						dstValue.Field(i).Set(reflect.ValueOf(timeValue.Format(timeFormat)))
 					}
-				} else {
+				} else { //不需要转换 直接赋值
 					if dstValue.Field(i).IsValid() && dstValue.Field(i).CanSet() && dstValue.Kind() == srcValue.Kind() {
 						dstValue.Field(i).Set(value)
 					}
@@ -137,9 +135,18 @@ func setValue(srcValue reflect.Value, dstValue reflect.Value) error {
 	return nil
 }
 
-func findValueByName(srcValue reflect.Value, fieldName string) reflect.Value {
+func findValueByName(srcValue reflect.Value, fieldInfo reflect.StructField) reflect.Value {
+	fieldName := fieldInfo.Tag.Get("mappingField") //优先根据mappingField设置查找
+	if len(fieldName) > 0 {
+		value := srcValue.FieldByNameFunc(func(s string) bool {
+			return strings.ToUpper(s) == strings.ToUpper(fieldName) //不区分大小写
+		})
+		return value
+	}
+
+	fieldName = fieldInfo.Name
 	value := srcValue.FieldByNameFunc(func(s string) bool {
-		return strings.ToUpper(s) == strings.ToUpper(fieldName)
+		return strings.ToUpper(s) == strings.ToUpper(fieldName) //不区分大小写
 	})
 	return value
 }
