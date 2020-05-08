@@ -3,6 +3,7 @@ package mapping
 import (
 	"errors"
 	"reflect"
+	"strings"
 	"time"
 )
 
@@ -46,7 +47,7 @@ func setValue(srcValue reflect.Value, dstValue reflect.Value) error {
 			}
 			fieldName := fieldInfo.Name
 			//fmt.Println(fieldName + ":" + dstType.Field(i).Type.String())
-			value := srcValue.FieldByName(fieldName)
+			value := findValueByName(srcValue, fieldName)
 			if !value.IsValid() {
 				continue
 			}
@@ -134,4 +135,11 @@ func setValue(srcValue reflect.Value, dstValue reflect.Value) error {
 		}
 	}
 	return nil
+}
+
+func findValueByName(srcValue reflect.Value, fieldName string) reflect.Value {
+	value := srcValue.FieldByNameFunc(func(s string) bool {
+		return strings.ToUpper(s) == strings.ToUpper(fieldName)
+	})
+	return value
 }

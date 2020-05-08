@@ -39,7 +39,7 @@ type User struct {
 }
 
 type UserDto struct {
-	ID        int
+	Id        int
 	Name      string `mapping:"ignore"`
 	Avatar    string
 	Address   AddressB
@@ -71,7 +71,7 @@ func GetData() []User {
 }
 
 func CheckResult(user *User, userDto *UserDto) bool {
-	if int(userDto.ID) != user.ID {
+	if int(userDto.Id) != user.ID {
 		return false
 	}
 	//if userDto.Name != user.Name {
