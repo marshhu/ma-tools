@@ -132,6 +132,26 @@ func TestMapToSlice(t *testing.T) {
 	}
 }
 
+func TestMapToSlice_Ptr(t *testing.T) {
+	data := GetData()
+	var userDtos []*UserDto
+	err := MapTo(data, &userDtos)
+	if err != nil {
+		t.FailNow()
+	}
+	if len(userDtos) != len(data) {
+		t.FailNow()
+	}
+
+	for i := 0; i < len(data); i++ {
+		userDto := userDtos[i]
+		user := data[i]
+		if !CheckResult(&user, userDto) {
+			t.FailNow()
+		}
+	}
+}
+
 func TestMapToArray(t *testing.T) {
 	data := GetData()
 	var users [4]User

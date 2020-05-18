@@ -80,10 +80,19 @@ func setValue(srcValue reflect.Value, dstValue reflect.Value) error {
 		}
 		for i := 0; i < srcValue.Len(); i++ {
 			//fmt.Println(srcValue.Index(i))
-			item := reflect.New(dstValue.Type().Elem())
-			setValue(srcValue.Index(i), item)
-			if dstValue.IsValid() && dstValue.CanSet() {
-				dstValue.Set(reflect.Append(dstValue, item.Elem()))
+			//fmt.Println(dstValue.Type().Elem())
+			if dstValue.Type().Elem().Kind() == reflect.Ptr { //切片指针
+				item := reflect.New(dstValue.Type().Elem().Elem())
+				setValue(srcValue.Index(i), item)
+				if dstValue.IsValid() && dstValue.CanSet() {
+					dstValue.Set(reflect.Append(dstValue, item))
+				}
+			} else {
+				item := reflect.New(dstValue.Type().Elem())
+				setValue(srcValue.Index(i), item)
+				if dstValue.IsValid() && dstValue.CanSet() {
+					dstValue.Set(reflect.Append(dstValue, item.Elem()))
+				}
 			}
 		}
 	case reflect.Array:
@@ -97,20 +106,37 @@ func setValue(srcValue reflect.Value, dstValue reflect.Value) error {
 			}
 			for i := 0; i < srcValue.Len(); i++ {
 				//fmt.Println(srcValue.Index(i))
-				item := reflect.New(dstValue.Type().Elem())
-				setValue(srcValue.Index(i), item)
-				if dstValue.Index(i).IsValid() && dstValue.Index(i).CanSet() {
-					dstValue.Index(i).Set(item.Elem())
+				if dstValue.Type().Elem().Kind() == reflect.Ptr { //数组指针
+					item := reflect.New(dstValue.Type().Elem().Elem())
+					setValue(srcValue.Index(i), item)
+					if dstValue.Index(i).IsValid() && dstValue.Index(i).CanSet() {
+						dstValue.Index(i).Set(item)
+					}
+				} else {
+					item := reflect.New(dstValue.Type().Elem())
+					setValue(srcValue.Index(i), item)
+					if dstValue.Index(i).IsValid() && dstValue.Index(i).CanSet() {
+						dstValue.Index(i).Set(item.Elem())
+					}
 				}
+
 			}
 		}
 		if dstType.Kind() == reflect.Slice {
 			for i := 0; i < srcValue.Len(); i++ {
 				//fmt.Println(srcValue.Index(i))
-				item := reflect.New(dstValue.Type().Elem())
-				setValue(srcValue.Index(i), item)
-				if dstValue.IsValid() && dstValue.CanSet() {
-					dstValue.Set(reflect.Append(dstValue, item.Elem()))
+				if dstValue.Type().Elem().Kind() == reflect.Ptr { //切片指针
+					item := reflect.New(dstValue.Type().Elem().Elem())
+					setValue(srcValue.Index(i), item)
+					if dstValue.IsValid() && dstValue.CanSet() {
+						dstValue.Set(reflect.Append(dstValue, item))
+					}
+				} else {
+					item := reflect.New(dstValue.Type().Elem())
+					setValue(srcValue.Index(i), item)
+					if dstValue.IsValid() && dstValue.CanSet() {
+						dstValue.Set(reflect.Append(dstValue, item.Elem()))
+					}
 				}
 			}
 		}
@@ -121,12 +147,24 @@ func setValue(srcValue reflect.Value, dstValue reflect.Value) error {
 		dstValue.Set(reflect.MakeMap(dstValue.Type()))
 		for _, key := range srcValue.MapKeys() {
 			//fmt.Println(srcValue.MapIndex(key))
-			item := reflect.New(dstValue.Type().Elem())
-			setValue(srcValue.MapIndex(key), item)
-			if dstValue.IsValid() && dstValue.CanSet() {
-				dstValue.SetMapIndex(key, item.Elem())
+			if dstValue.Type().Elem().Kind() == reflect.Ptr { //map指针
+				item := reflect.New(dstValue.Type().Elem().Elem())
+				setValue(srcValue.MapIndex(key), item)
+				if dstValue.IsValid() && dstValue.CanSet() {
+					dstValue.SetMapIndex(key, item)
+				}
+			} else {
+				item := reflect.New(dstValue.Type().Elem())
+				setValue(srcValue.MapIndex(key), item)
+				if dstValue.IsValid() && dstValue.CanSet() {
+					dstValue.SetMapIndex(key, item.Elem())
+				}
 			}
+
 		}
+	case reflect.Ptr:
+		srcValue = srcValue.Elem() // 取具体内容
+		setValue(srcValue, dstValue)
 	default:
 		if dstValue.IsValid() && dstValue.CanSet() && dstValue.Kind() == srcValue.Kind() {
 			dstValue.Set(srcValue)
