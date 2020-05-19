@@ -165,7 +165,11 @@ func setValue(srcValue reflect.Value, dstValue reflect.Value) error {
 		}
 	case reflect.Ptr:
 		srcValue = srcValue.Elem() // 取具体内容
-		setValue(srcValue, dstValue)
+		item := reflect.New(dstValue.Type())
+		setValue(srcValue, item)
+		if dstValue.IsValid() && dstValue.CanSet() {
+			dstValue.Set(item.Elem())
+		}
 	default:
 		if dstValue.IsValid() && dstValue.CanSet() {
 			if dstValue.Kind() == srcValue.Kind() {
