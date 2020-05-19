@@ -16,11 +16,12 @@ type AddressB struct {
 
 type Hobby struct {
 	Name  string
-	Level int
+	Level int64
 }
 
 type HobbyB struct {
-	Name string
+	Name  string
+	Level string
 }
 
 type Model struct {

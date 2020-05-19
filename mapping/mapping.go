@@ -3,6 +3,7 @@ package mapping
 import (
 	"errors"
 	"reflect"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -166,8 +167,27 @@ func setValue(srcValue reflect.Value, dstValue reflect.Value) error {
 		srcValue = srcValue.Elem() // 取具体内容
 		setValue(srcValue, dstValue)
 	default:
-		if dstValue.IsValid() && dstValue.CanSet() && dstValue.Kind() == srcValue.Kind() {
-			dstValue.Set(srcValue)
+		if dstValue.IsValid() && dstValue.CanSet() {
+			if dstValue.Kind() == srcValue.Kind() {
+				dstValue.Set(srcValue)
+			} else {
+				switch srcValue.Kind() {
+				case reflect.String:
+					switch dstValue.Kind() {
+					case reflect.Int64: //string转int64
+						temp, _ := strconv.ParseInt(srcValue.String(), 10, 64)
+						dstValue.Set(reflect.ValueOf(temp))
+					case reflect.Int: //string转int
+						temp, _ := strconv.Atoi(srcValue.String())
+						dstValue.Set(reflect.ValueOf(temp))
+					}
+				case reflect.Int64, reflect.Int, reflect.Int32:
+					if dstValue.Kind() == reflect.String { //int转string
+						temp := strconv.FormatInt(srcValue.Int(), 10)
+						dstValue.Set(reflect.ValueOf(temp))
+					}
+				}
+			}
 		}
 	}
 	return nil
