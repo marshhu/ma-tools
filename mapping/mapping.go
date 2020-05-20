@@ -184,6 +184,21 @@ func setValue(srcValue reflect.Value, dstValue reflect.Value) error {
 					case reflect.Int: //string转int
 						temp, _ := strconv.Atoi(srcValue.String())
 						dstValue.Set(reflect.ValueOf(temp))
+					case reflect.Slice: //字符串转数组
+						str := srcValue.String()
+						if len(str) > 0 {
+							separators := []string{"|", ","} //分隔符
+							var list []string
+							for _, separator := range separators {
+								list = strings.Split(str, separator)
+								if len(list) > 0 {
+									break
+								}
+							}
+							for _, item := range list {
+								dstValue.Set(reflect.Append(dstValue, reflect.ValueOf(item)))
+							}
+						}
 					}
 				case reflect.Int64, reflect.Int, reflect.Int32:
 					if dstValue.Kind() == reflect.String { //int转string
