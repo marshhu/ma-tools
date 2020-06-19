@@ -1,5 +1,7 @@
 package main
 
-func main() {
+import "ma-tools/htmltopdf"
 
+func main() {
+	htmltopdf.ExampleNewPDFGenerator()
 }
