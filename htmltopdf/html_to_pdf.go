@@ -1,15 +1,13 @@
 package htmltopdf
 
 import (
-	"fmt"
+	"bytes"
 	wkhtmltopdf "github.com/SebastiaanKlippert/go-wkhtmltopdf"
-	"io/ioutil"
+	"io"
 	"log"
-	"strings"
 )
 
-func ExampleNewPDFGenerator() {
-
+func GenerateHtmlToPdf(html io.Reader) (*bytes.Buffer, error) {
 	// Create new PDF generator
 	pdfg, err := wkhtmltopdf.NewPDFGenerator()
 	if err != nil {
@@ -23,13 +21,7 @@ func ExampleNewPDFGenerator() {
 	pdfg.PageSize.Set(wkhtmltopdf.PageSizeA4)
 	pdfg.MarginBottom.Set(40)
 
-	////// Create a new input page from an URL
-	//page := wkhtmltopdf.NewPage("https://godoc.org/github.com/SebastiaanKlippert/go-wkhtmltopdf")
-	html, err := ioutil.ReadFile("./htmltopdf/template.html")
-	if err != nil {
-		panic(err)
-	}
-	page := wkhtmltopdf.NewPageReader(strings.NewReader(string(html)))
+	page := wkhtmltopdf.NewPageReader(html)
 
 	// Add to document
 	pdfg.AddPage(page)
@@ -37,15 +29,8 @@ func ExampleNewPDFGenerator() {
 	// Create PDF document in internal buffer
 	err = pdfg.Create()
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 
-	// Write buffer contents to file on disk
-	err = pdfg.WriteFile("./simplesample.pdf")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	fmt.Println("Done")
-	// Output: Done
+	return pdfg.Buffer(), nil
 }
