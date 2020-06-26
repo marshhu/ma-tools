@@ -2,17 +2,13 @@ package simple_crawler
 
 import (
 	"fmt"
-	"net/http"
-	"regexp"
 	"sync"
 )
 
 //工作信息
 type JobInfo struct {
 	PlatformName string
-	PlatformUrl  string
 	Url          string
-	FindContent  string
 }
 
 //工作结果
@@ -22,22 +18,15 @@ type WorkResult struct {
 	Content    []byte
 }
 
-//处理结果
-type HandleResult struct {
-	Job        JobInfo
-	HttpStatus int
-	IsFind     bool
-}
-
 //处理方法
-type HandleFunc func(workResult *WorkResult) *HandleResult //定义处理函数
+type HandleFunc func(workResult *WorkResult) //定义处理函数
 
-func CrawlerPlatform(jobInfos []JobInfo) {
+func CrawlerPlatform(jobInfos []JobInfo, handleFunc HandleFunc) {
 	jobs := make(chan JobInfo, 10)           //工作job
 	workResults := make(chan WorkResult, 10) //工作结果
 	go createJobs(jobInfos, jobs)            //创建
 	done := make(chan bool)
-	go handleResult(workResults, findContent, done) //处理结果
+	go handleResult(workResults, handleFunc, done) //处理结果
 	numOfWorkers := 20
 	createWorkerPool(numOfWorkers, jobs, workResults) //创建工作池
 	<-done
@@ -72,27 +61,7 @@ func worker(id int, jobs chan JobInfo, workResults chan WorkResult, wg *sync.Wai
 
 func handleResult(workResults chan WorkResult, handelFunc HandleFunc, done chan bool) {
 	for workResult := range workResults {
-		handleResult := handelFunc(&workResult)
-		fmt.Printf("%s平台，http状态为:%d,查找结果为：%v\n", handleResult.Job.PlatformName, handleResult.HttpStatus, handleResult.IsFind)
+		handelFunc(&workResult)
 	}
 	done <- true
-}
-
-func findContent(workResult *WorkResult) *HandleResult {
-	handleResult := HandleResult{Job: workResult.Job, HttpStatus: workResult.HttpStatus}
-	if workResult.HttpStatus != http.StatusOK {
-		handleResult.IsFind = false
-		return &handleResult
-	}
-
-	//查找内容
-	re := regexp.MustCompile(workResult.Job.FindContent)
-	findStr := re.FindString(string(workResult.Content))
-	if len(findStr) > 0 {
-		handleResult.IsFind = true
-		return &handleResult
-	}
-
-	handleResult.IsFind = false
-	return &handleResult
 }

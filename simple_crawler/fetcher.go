@@ -8,6 +8,7 @@ import (
 	"golang.org/x/text/encoding/simplifiedchinese"
 	"golang.org/x/text/encoding/unicode"
 	"golang.org/x/text/transform"
+	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -21,12 +22,29 @@ func Fetcher(url string, timeout int) (httpStatus int, body []byte, err error) {
 	}
 	client := &http.Client{Timeout: time.Duration(timeout) * time.Second}
 	req, _ := http.NewRequest("GET", url, nil)
-	//userAgent := "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Safari/537.36"
-	//req.Header.Add("User-Agent", userAgent)
+	userAgent := "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Safari/537.36"
+	req.Header.Add("User-Agent", userAgent)
 	resp, error := client.Do(req)
 	if error != nil || resp == nil {
 		return 0, nil, errors.New("获取失败")
 	}
+
+	////今日头条
+	//if strings.Contains(url, "www.toutiao.com") {
+	//	cookies := resp.Cookies()
+	//	if len(cookies) >= 0 {
+	//		var acNonce string
+	//		for _, cookie := range cookies {
+	//			if cookie.Name == "__ac_nonce" {
+	//				acNonce = cookies[0].Value
+	//				break
+	//			}
+	//		}
+	//		fmt.Println(acNonce)
+	//	}
+	//	fmt.Println(cookies)
+	//}
+
 	bodyReader := bufio.NewReader(resp.Body)
 	defer resp.Body.Close()
 	e, _ := determineEncoding(bodyReader)
@@ -47,4 +65,12 @@ func determineEncoding(r *bufio.Reader) (encoding.Encoding, string) {
 		return simplifiedchinese.GBK, "gbk"
 	}
 	return e, name
+}
+
+func newRequest(method, url string, body io.Reader) (*http.Request, error) {
+	req, err := http.NewRequest(method, url, body)
+	userAgent := "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Safari/537.36"
+	req.Header.Add("User-Agent", userAgent)
+
+	return req, err
 }
