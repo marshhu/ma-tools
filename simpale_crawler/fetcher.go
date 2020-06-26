@@ -5,6 +5,7 @@ import (
 	"errors"
 	"golang.org/x/net/html/charset"
 	"golang.org/x/text/encoding"
+	"golang.org/x/text/encoding/simplifiedchinese"
 	"golang.org/x/text/encoding/unicode"
 	"golang.org/x/text/transform"
 	"io/ioutil"
@@ -43,7 +44,7 @@ func determineEncoding(r *bufio.Reader) (encoding.Encoding, string) {
 	}
 	e, name, _ := charset.DetermineEncoding(bytes, "")
 	if name == "windows-1252" {
-		return unicode.UTF8, "utf8"
+		return simplifiedchinese.GBK, "gbk"
 	}
 	return e, name
 }
