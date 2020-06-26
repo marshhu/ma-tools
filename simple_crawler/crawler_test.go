@@ -1,4 +1,4 @@
-package simpale_crawler
+package simple_crawler
 
 import (
 	"fmt"
